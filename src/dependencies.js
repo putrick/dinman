@@ -10,25 +10,25 @@ const isLooseDependency = (app, dependencyApp) =>
     app.type === looseDependencyType.from &&
       dependencyApp.type === looseDependencyType.to);
 
-const startAppWithDependencies = (app, appsToStart) => {
+const startAppWithDependencies = (app, appsToStart, depth = Number.MAX_SAFE_INTEGER, currentDepth = 0) => {
   if (appsToStart.includes(app.name)) {
     return;
   }
   appsToStart.push(app.name);
   app.dependencies.forEach((dependencyAppName) => {
-    if (appsToStart.includes(dependencyAppName) || dependencyAppName === app.name) {
+    if (appsToStart.includes(dependencyAppName) || dependencyAppName === app.name || currentDepth >= depth) {
       return;
     }
     const dependencyApp = repository.getAppByName(dependencyAppName);
     if (isLooseDependency(app, dependencyApp)) {
       return;
     }
-    startAppWithDependencies(dependencyApp, appsToStart);
+    startAppWithDependencies(dependencyApp, appsToStart, depth, currentDepth + 1);
   });
   processes.startApp(app.name);
 };
 
-const startApp = (appName) => {
+const startApp = (appName, depth) => {
   const app = repository.getAppByName(appName);
 
   if (!app) {
@@ -36,7 +36,7 @@ const startApp = (appName) => {
     return;
   }
 
-  startAppWithDependencies(app, []);
+  startAppWithDependencies(app, [], depth);
 };
 
 const startAppExcluded = (appName) => {

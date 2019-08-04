@@ -9,6 +9,7 @@ const { cmd, cmdAll } = require('./cmd');
 const ParamType = {
   app: 'app',
   command: 'command',
+  number: 'number',
 };
 
 const log = (app) => {
@@ -33,8 +34,8 @@ const ls = () => {
   });
 };
 
-const start = (appName) => {
-  dependencies.startApp(appName);
+const start = (appName, depth) => {
+  dependencies.startApp(appName, depth);
 };
 
 const startExcluded = (appName) => {
@@ -84,7 +85,7 @@ const exit = () => {
 
 const commands = {
   ls: { expects: [], exec: ls },
-  start: { expects: [ParamType.app], exec: start },
+  start: { expects: [ParamType.app, ParamType.number], exec: start },
   'start-excluded': { expects: [ParamType.app], exec: startExcluded },
   'start-only': { expects: [ParamType.app], exec: startOnly },
   'start-all': { expects: [], exec: startAll },
@@ -104,7 +105,7 @@ const commands = {
 const commandDescription = {
   log: 'Outputs log for app',
   ls: 'Lists all apps from config',
-  start: 'Starts app with dependencies',
+  start: 'Starts app with dependencies (provide number for depth)',
   'start-excluded': 'Starts apps dependencies but not app itself',
   'start-only': 'Starts app only (without dependencies)',
   'start-all': 'Starts all apps',
