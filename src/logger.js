@@ -1,48 +1,55 @@
-let logLevel = 'info'; // verbose, info, warning, error
+const LogLevel = {
+  error: 'error',
+  warning: 'warning',
+  info: 'info',
+  verbose: 'verbose',
+};
+
+let logLevel = LogLevel.info; // verbose, info, warning, error
 
 const Color = {
   red: '\x1b[31m',
   yellow: '\x1b[33m',
   green: '\x1b[32m',
   white: '\x1b[37m',
+  gray: '\x1b[90m',
 };
 
-const log = (msg) => {
-  process.stdout.write(` ${msg}\n`);
+const log = (...msg) => {
+  process.stdout.write(` ${msg.join(' ')}\n`);
 };
 
-const withColoredTag = (tag, color, msg) => {
-  log(`[${color}${tag}${Color.white}] ${msg}`);
+const asColor = (msg, color) =>
+  `${color}${msg}${Color.white}`;
+
+const error = (...msg) => {
+  log(`[${asColor('ERROR', Color.red)}]`, ...msg);
 };
 
-const error = (msg) => {
-  withColoredTag('ERROR', Color.red, msg);
-};
-
-const warning = (msg) => {
-  if (['verbose', 'info', 'warning'].includes(logLevel)) {
-    withColoredTag('Warning', Color.yellow, msg);
+const warning = (...msg) => {
+  if ([LogLevel.verbose, LogLevel.info, LogLevel.warning].includes(logLevel)) {
+    log(`[${asColor('Warning', Color.yellow)}]`, ...msg);
   }
 };
 
-const info = (msg) => {
-  if (['verbose', 'info'].includes(logLevel)) {
-    log(msg);
+const info = (...msg) => {
+  if ([LogLevel.verbose, LogLevel.info].includes(logLevel)) {
+    log(...msg);
   }
 };
 
-const verbose = (msg) => {
-  if (['verbose'].includes(logLevel)) {
-    log(msg);
+const verbose = (...msg) => {
+  if ([LogLevel.verbose].includes(logLevel)) {
+    log(...msg);
   }
 };
 
-const positive = (tag, msg) => {
-  withColoredTag(tag, Color.green, msg);
+const positive = (tag, ...msg) => {
+  log(`[${asColor(tag, Color.green)}]`, ...msg);
 };
 
-const negative = (tag, msg) => {
-  withColoredTag(tag, Color.red, msg);
+const negative = (tag, ...msg) => {
+  log(`[${asColor(tag, Color.red)}]`, ...msg);
 };
 
 const clearConsole = () => {
@@ -54,7 +61,7 @@ const newLine = () => {
 };
 
 const setLogLevel = (newLogLevel) => {
-  if (!['verbose', 'info', 'warning', 'error'].includes(newLogLevel)) {
+  if (!Object.values(LogLevel).includes(newLogLevel)) {
     error(`Log level ${newLogLevel} doesnt exist.`);
     return;
   }
@@ -64,6 +71,7 @@ const setLogLevel = (newLogLevel) => {
 };
 
 module.exports = {
+  asColor,
   error,
   warning,
   info,
@@ -73,4 +81,5 @@ module.exports = {
   clearConsole,
   newLine,
   setLogLevel,
+  Color,
 };
